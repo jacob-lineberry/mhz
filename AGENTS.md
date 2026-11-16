@@ -48,8 +48,8 @@ v1 code will not compile here. `go.mod` is the source of truth.
   and report back as messages.
 - Nothing blocks the event loop. Long-running work (audio, streams) runs in a goroutine owned
   by one package, stops via `context.Context`, and talks to the program only through messages.
-- Animation runs on a fixed tick (<!-- TODO: FPS -->). Create springs once with
-  `harmonica.NewSpring(harmonica.FPS(n), ...)`; don't allocate per frame.
+- Animation runs on a fixed tick (30 FPS). Create springs once with
+  `harmonica.NewSpring(harmonica.FPS(30), ...)`; don't allocate per frame.
 - No new dependencies without asking first.
 - `spikes/` is throwaway research and has its own `go.mod`; nothing in the main module imports it.
  

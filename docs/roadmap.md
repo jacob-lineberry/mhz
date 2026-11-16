@@ -23,7 +23,7 @@ the order and the prompts. `<angle brackets>` mark decisions only you can make.
 | First commit on a branch is `openspec/changes/<name>/` | `openspec/`, `.claude/` and `.agents/` are in `.gitignore` | They stay ignored. Specs, changes and archives live only on this machine; PRs carry code and docs. Copy `openspec/` to the MacBook yourself |
 | Rain scene exists on a branch | An earlier `add-rain-scene` branch (20/26 tasks) was never merged and was deleted on 2026-11-16 | Nothing to merge. Change 11 builds the rain scene fresh; its look values are in that prompt |
 | Checks required and up to date | `strict_required_status_checks_policy` is `false` | §7 |
-| CodeQL and secret scanning to add | Already on: CodeQL default setup (go, actions; weekly), secret scanning, push protection, Dependabot alerts, read-only default token. Off: Dependabot security updates, private vulnerability reporting, SHA-pin requirement | §7 is shorter |
+| CodeQL and secret scanning to add | Already on: CodeQL default setup (go, actions; weekly), secret scanning, push protection, Dependabot alerts, read-only default token. Off: private vulnerability reporting, SHA-pin requirement (Dependabot security updates were switched on 2026-11-16) | §7 is shorter |
 | Bootstrap had 26 tasks | Bootstrap had 19; the rain change has 26 | Same lesson |
 | — | README and AGENTS.md line 1 still say "music-reactive terminal visualizer"; AGENTS.md has two TODOs; `docs/decisions/` doesn't exist | Chore 0.2 |
 
@@ -237,7 +237,7 @@ Housekeeping after the pivot to a radio player. No product behavior changes.
    `openspec validate --specs --strict` and fix nothing but the config.
 2. README.md: one-line description of the radio player, a status line ("pre-release"),
    and a link to docs/roadmap.md.
-3. AGENTS.md: fix line 1 to match; fill the FPS TODO from internal/app; replace the
+3. AGENTS.md: fix line 1 to match; fill the FPS TODO (decided: 30); replace the
    single-test TODO with a real example path; add "spikes/ is throwaway and has its
    own go.mod" and "openspec/, .claude/ and .agents/ are gitignored; never stage
    them". Keep it short.
@@ -758,7 +758,8 @@ your names and frequencies, credit wording, and what each broadcaster said when 
 
 | When | Add | Settings and ruleset changes |
 |---|---|---|
-| Now (chore 0.3) | `.github/dependabot.yml`; `.github/SECURITY.md`; actions pinned to commit SHAs; one aggregate `check` job; a `govulncheck` job | Enable Dependabot security updates and private vulnerability reporting. Require SHA-pinned actions. Require only `check`. Turn on "require branches to be up to date". Add "Require code scanning results" for CodeQL. Turn on auto-delete of merged branches |
+| Now (chore 0.3, trimmed; done in #5) | `.github/dependabot.yml`; actions pinned to commit SHAs; a `govulncheck` workflow (push, PR, weekly) | Dependabot security updates and auto-delete of merged branches: on |
+| Before v0.1.0 (optional) | `.github/SECURITY.md`; one aggregate `check` job | Enable private vulnerability reporting. Require SHA-pinned actions. Require only `check`. "Require branches to be up to date". "Require code scanning results" for CodeQL |
 | With change 1 | Nothing if ADR-0001 stays cgo-free | If a cgo dependency is chosen: CodeQL default setup can't install system packages, so switch to [advanced setup][codeql-build] with `build-mode: manual`, and install the headers in `ci.yml` too |
 | With R1 | Release workflow; `goreleaser check` in CI | Tag ruleset for `v*` (no update, no delete). Enable immutable releases. The release job alone gets `contents: write`, `id-token: write`, `attestations: write` |
 | Later, if PR volume annoys you | Dependabot auto-merge for patch updates ([pattern][dependabot-automerge]) | Allow auto-merge |
@@ -767,14 +768,17 @@ Notes:
 
 - **Already on, nothing to do:** CodeQL default setup, secret scanning, push protection,
   Dependabot alerts, read-only default `GITHUB_TOKEN`.
-- **Aggregate check.** Required checks are the three matrix job names today. A skipped
+- **Trimmed on 2026-11-16.** Modeled on Crush's workflows: it has Dependabot, SHA-pinned
+  actions and a `govulncheck` job, but no `SECURITY.md` and no aggregate job. The rest moved
+  to the "before v0.1.0" row; it only pays off once checks are required.
+- **Aggregate check (deferred).** Required checks are the three matrix job names today. A skipped
   required check stays "Pending" and blocks merging ([docs][required-checks]). One `check`
   job with `needs:` on the matrix and `if: always()` lets the matrix change without
   editing the ruleset.
 - **Up to date.** With one branch at a time it costs nothing. Dependabot rebases its own
   PRs; grouping keeps that to one PR a week.
 - **Dependabot** ([options][dependabot-options]): `gomod` and `github-actions`, weekly,
-  one group per ecosystem. A 3-day cooldown applies by default. It updates SHA pins and
+  one group per ecosystem, `chore(deps)` commit titles, no labels (the repo has none). A 3-day cooldown applies by default. It updates SHA pins and
   their version comments. It does not bump the `toolchain` line in `go.mod`; do that by hand.
 - **CodeQL rule.** The code-scanning rule is separate from status checks and doesn't apply
   to Dependabot PRs ([merge protection][codeql-merge]). Availability on the Free plan is
@@ -782,28 +786,25 @@ Notes:
 - **Skipped as not worth it yet:** OpenSSF Scorecard, workflow lockfiles
   ([GA 2026-10-28][actions-lock]; SHA pins plus Dependabot cover the same risk).
 
-**0.3 prompt** (branch `chore/ci-hardening`, no OpenSpec):
+**0.3 prompt** (branch `chore/ci-hardening`, no OpenSpec). Item 1 already shipped in #5, so
+what remains is:
 
 ```text
 CI hardening. No product code changes.
 
-1. .github/dependabot.yml: ecosystems gomod and github-actions, weekly, one group
-   per ecosystem, semantic commit prefix "chore".
-2. .github/SECURITY.md: supported version is the latest release; report through
-   GitHub private vulnerability reporting; I reply within <7> days.
-3. Pin every action in .github/workflows to a full commit SHA with a version
+1. Pin every action in .github/workflows to a full commit SHA with a version
    comment. Look the SHAs up; don't guess them.
-4. ci.yml: add a job named `check` that needs the matrix job, runs with
-   `if: always()`, and fails unless every matrix leg succeeded. Rename the matrix
-   job so the names don't collide.
-5. ci.yml: add a govulncheck job (golang/govulncheck-action, pinned).
+2. .github/workflows/govulncheck.yml: golang/govulncheck-action (pinned), on push
+   to main, pull requests and a weekly cron, reading the Go version from go.mod.
 
-Don't change repository settings; list the ones I must change by hand, in order,
-so the required-check switch never blocks this PR.
+Don't change repository settings; list the ones I must change by hand.
 
-Done when: the PR's checks are green on all three systems, the new `check` job
-goes red when I break a test on purpose (show me the run), and `make check` passes.
+Done when: the PR's checks are green on all three systems, the govulncheck job
+runs, and `make check` passes.
 ```
+
+Status: done (PR #5). Dependabot security updates and auto-delete of merged branches were
+switched on 2026-11-16. Nothing else from this chore remains until the optional row above.
 
 ## 8. Release
 
@@ -967,7 +968,7 @@ Moved to [docs/design/faceplate.md](design/faceplate.md): mood, palette, typogra
 - The earlier rain implementation is gone. Change 11 starts from the values in its prompt, which you never approved in stills.
 - `openspec/` exists only on this machine; back it up, or a lost disk loses every spec.
 
-**Decided** (2026-11-16): autoplay the last station; TOML config; s then 1–6 stores a
+**Decided** (2026-11-16): 30 FPS frame tick; autoplay the last station; TOML config; s then 1–6 stores a
 preset; versions print without `v`; the earlier rain branch was deleted (2026-11-16) and the rain scene is rebuilt in change 11.
 
 **Open questions**
