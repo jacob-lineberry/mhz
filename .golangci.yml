@@ -1,0 +1,17 @@
+version: "2"
+linters:
+  default: standard        # errcheck, govet, ineffassign, staticcheck, unused
+  enable: [depguard]
+  settings:
+    depguard:
+      rules:
+        charm-v2-only:
+          list-mode: lax
+          files: ["$all"]
+          deny:
+            - pkg: github.com/charmbracelet/bubbletea
+              desc: "Charm v1 path; use charm.land/bubbletea/v2"
+            - pkg: github.com/charmbracelet/lipgloss
+              desc: "Charm v1 path; use charm.land/lipgloss/v2"
+            - pkg: github.com/charmbracelet/bubbles
+              desc: "Charm v1 path; use charm.land/bubbles/v2"
