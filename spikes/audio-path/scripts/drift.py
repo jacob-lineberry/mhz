@@ -38,6 +38,9 @@ print(f"{sys.argv[1]}: span {span:.0f}s from t={t[0]:.0f}s")
 print(f"  arrival  {a:10.2f} fr/s  ({(a / nom - 1) * 1e6:+7.1f} ppm vs system clock), max residual {ar / nom * 1000:.0f} ms")
 print(f"  consume  {c:10.2f} fr/s  ({(c / nom - 1) * 1e6:+7.1f} ppm vs system clock), max residual {cr / nom * 1000:.0f} ms")
 print(f"  buffered slope {b / nom * 3600 * 1000:+8.1f} ms/hour ({b / nom * 1e6:+.1f} ppm), start {buf[0] / nom:.2f}s end {buf[-1] / nom:.2f}s, jitter +-{br / nom * 1000:.0f} ms")
+lv = [float(r["ring_ms"]) + float(r["player_ms"]) for r in rows]
+lb, lr = fit(t, lv)
+print(f"  LEVEL slope {lb * 3600:+8.1f} ms/hour ({lb * 1000:+.1f} ppm), min {min(lv) / 1000:.2f}s max {max(lv) / 1000:.2f}s, jitter +-{lr:.0f} ms")
 starves = rows[-1]["starves"]
 print(f"  starves={starves} starved_ms={rows[-1]['starved_ms']} gaps={rows[-1]['gaps']} gap_ms={rows[-1]['gap_ms']} dropped={rows[-1]['dropped']}")
 cpu = (float(rows[-1]["cpu_ms"]) - float(rows[0]["cpu_ms"])) / 1000 / span * 100
