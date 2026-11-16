@@ -1,13 +1,13 @@
 # AGENTS.md
  
-mhz: a music-reactive terminal visualizer in Go (Bubble Tea v2, Lip Gloss v2, Bubbles v2, Harmonica).
+mhz: a curated internet-radio player for the terminal with an 80s car-stereo faceplate, in Go (Bubble Tea v2, Lip Gloss v2, Bubbles v2, Harmonica).
  
 ## Commands
  
 ```bash
 go build ./...
 go test ./...
-go test ./internal/<pkg> -run TestName   # single test  <!-- TODO: real path -->
+go test ./internal/app -run TestQuitKeys # single test
 go test -race ./...                      # required if you touched goroutines, channels, or audio
 go vet ./...
 golangci-lint run                        # config: .golangci.yml
@@ -51,10 +51,11 @@ v1 code will not compile here. `go.mod` is the source of truth.
 - Animation runs on a fixed tick (<!-- TODO: FPS -->). Create springs once with
   `harmonica.NewSpring(harmonica.FPS(n), ...)`; don't allocate per frame.
 - No new dependencies without asking first.
+- `spikes/` is throwaway research and has its own `go.mod`; nothing in the main module imports it.
  
 ## OpenSpec
  
-Specs and tasks live in `openspec/`. Implement only the task you were given. If the spec is
+Specs and tasks live in `openspec/`. `openspec/`, `.claude/` and `.agents/` are gitignored; never stage them. Implement only the task you were given. If the spec is
 ambiguous or wrong, stop and ask; don't invent requirements. Mark a task complete only when
 the definition of done above is met.
 
