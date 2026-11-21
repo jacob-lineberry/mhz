@@ -20,10 +20,10 @@ endif
 
 BIN := mhz$(shell go env GOEXE)
 
-.PHONY: check fmt-check vet lint test race build golangci-lint-version
+.PHONY: check fmt-check tidy-check vet lint test race build golangci-lint-version
 .NOTPARALLEL:
 
-check: fmt-check vet lint test race
+check: fmt-check tidy-check vet lint test race
 
 fmt-check:
 	@echo "==> gofmt -l ."
@@ -33,6 +33,10 @@ fmt-check:
 		echo "$$out"; \
 		exit 1; \
 	fi
+
+tidy-check:
+	@echo "==> go mod tidy -diff"
+	@go mod tidy -diff
 
 vet:
 	@echo "==> go vet ./..."
