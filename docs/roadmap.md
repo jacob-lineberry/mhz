@@ -758,8 +758,9 @@ your names and frequencies, credit wording, and what each broadcaster said when 
 
 | When | Add | Settings and ruleset changes |
 |---|---|---|
-| Now (chore 0.3, trimmed; done in #5) | `.github/dependabot.yml`; actions pinned to commit SHAs; a `govulncheck` workflow (push, PR, weekly) | Dependabot security updates and auto-delete of merged branches: on |
-| Before v0.1.0 (optional) | `.github/SECURITY.md`; one aggregate `check` job | Enable private vulnerability reporting. Require SHA-pinned actions. Require only `check`. "Require branches to be up to date". "Require code scanning results" for CodeQL |
+| Now (chore 0.3, trimmed; done in d4e7563) | `.github/dependabot.yml`; actions pinned to commit SHAs; a `govulncheck` workflow (push, PR, weekly) | Dependabot security updates and auto-delete of merged branches: on |
+| 2026-11-21 (done) | a `zizmor` workflow (push, PR, weekly) that audits `.github/`; `persist-credentials: false` on the `ci.yml` checkout | Require SHA-pinned actions: on. Squash commits use the PR title with a blank body. Add `zizmor` to the required checks |
+| Before v0.1.0 (optional) | `.github/SECURITY.md`; one aggregate `check` job | Enable private vulnerability reporting. Require only `check` (and `zizmor`). "Require branches to be up to date". "Require code scanning results" for CodeQL |
 | With change 1 | Nothing if ADR-0001 stays cgo-free | If a cgo dependency is chosen: CodeQL default setup can't install system packages, so switch to [advanced setup][codeql-build] with `build-mode: manual`, and install the headers in `ci.yml` too |
 | With R1 | Release workflow; `goreleaser check` in CI | Tag ruleset for `v*` (no update, no delete). Enable immutable releases. The release job alone gets `contents: write`, `id-token: write`, `attestations: write` |
 | Later, if PR volume annoys you | Dependabot auto-merge for patch updates ([pattern][dependabot-automerge]) | Allow auto-merge |
@@ -786,7 +787,7 @@ Notes:
 - **Skipped as not worth it yet:** OpenSSF Scorecard, workflow lockfiles
   ([GA 2026-10-28][actions-lock]; SHA pins plus Dependabot cover the same risk).
 
-**0.3 prompt** (branch `chore/ci-hardening`, no OpenSpec). Item 1 already shipped in #5, so
+**0.3 prompt** (branch `chore/ci-hardening`, no OpenSpec). Item 1 already shipped in d4e7563, so
 what remains is:
 
 ```text
@@ -803,7 +804,7 @@ Done when: the PR's checks are green on all three systems, the govulncheck job
 runs, and `make check` passes.
 ```
 
-Status: done (PR #5). Dependabot security updates and auto-delete of merged branches were
+Status: done (d4e7563). Dependabot security updates and auto-delete of merged branches were
 switched on 2026-11-16. Nothing else from this chore remains until the optional row above.
 
 ## 8. Release
