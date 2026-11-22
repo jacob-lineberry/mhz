@@ -4,11 +4,16 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
   # New advisories appear without any code change, so scan weekly too.
   schedule:
     - cron: "0 6 * * 1"
 
 permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   govulncheck:

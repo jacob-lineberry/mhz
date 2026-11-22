@@ -4,12 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -17,6 +17,8 @@ jobs:
     name: check (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

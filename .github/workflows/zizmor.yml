@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
   # The online audits (known-vulnerable-actions, impostor-commit) use advisory data that
   # changes without any code change, so scan weekly too.
   schedule:
@@ -12,11 +13,12 @@ on:
 permissions: {}
 
 concurrency:
-  group: zizmor-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   zizmor:
+    name: zizmor
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -26,9 +28,9 @@ jobs:
         with:
           persist-credentials: false
 
-      # Findings fail this job and show as PR annotations instead of going to code
-      # scanning, as in golangci-lint. The action defaults to the latest zizmor, so the
-      # version is pinned here and bumped by hand (Dependabot only bumps the action).
+      # Findings fail this job and show as PR annotations instead of going to code scanning.
+      # The action defaults to the latest zizmor, so the version is pinned here and bumped by
+      # hand (Dependabot only bumps the action).
       - uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
         with:
           version: 1.32.0
