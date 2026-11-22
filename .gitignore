@@ -11,12 +11,7 @@ coverage.out
 go.work
 go.work.sum
 
-# AI agent tooling (AGENTS.md stays tracked)
+# Local AI agent tooling, not tracked (AGENTS.md stays tracked)
 .claude/
 .agents/
 openspec/
-
-# Editor and OS files
-.idea/
-.vscode/
-.DS_Store
