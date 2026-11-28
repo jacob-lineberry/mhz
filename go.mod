@@ -4,7 +4,7 @@ go 1.26.0
 
 toolchain go1.26.8
 
-require charm.land/bubbletea/v2 v2.1.1
+require charm.land/bubbletea/v2 v2.1.2
 
 require (
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
